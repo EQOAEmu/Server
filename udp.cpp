@@ -6,6 +6,8 @@
 
 #include "udp.h"
 #include "packet.h"
+#include "CRCsupport.h"
+
 
 
 using boost::asio::ip::udp;
@@ -20,18 +22,18 @@ struct SessionRequest {
     {
     }
 
-    void serialize(Packet p)
+    void serialize(Packet *p)
     {
 	
     }
 
-    void deserialize(Packet p)
+    void deserialize(Packet *p)
     {
-	clientcode = p.read<uint16_t>();
-	p.seek<uint32_t>();
-	p.seek<uint16_t>();
-	p.seek<uint8_t>();
-	sessioncode = p.read<uint16_t>();
+	clientcode = p->read<uint16_t>();
+	p->seek<uint32_t>();
+	p->seek<uint16_t>();
+	p->seek<uint8_t>();
+	sessioncode = p->read<uint16_t>();
 
     }
 
@@ -67,24 +69,24 @@ struct SessionResponse {
 	{
 	}
 
-    void serialize(Packet p)
+    void serialize(Packet *p)
     {	
-	p.swap_bytes_write(servercode);
-	p.write(clientcode);
-	p.write(length);
-	p.write(opcode);
-	p.write(clientcode);
-	p.write(sessioncode);
-	p.write(unknown1);
-	p.write(clientcode);
-	p.write(sessioncode);
-	p.swap_bytes_write(seqno);
-	p.swap_bytes_write(unknown2);
-	p.swap_bytes_write(unknown3);
-	p.write(unknown4);
+	p->swap_bytes_write(servercode);
+	p->write(clientcode);
+	p->write(length);
+	p->write(opcode);
+	p->write(clientcode);
+	p->write(sessioncode);
+	p->write(unknown1);
+	p->write(clientcode);
+	p->write(sessioncode);
+	p->swap_bytes_write(seqno);
+	p->swap_bytes_write(unknown2);
+	p->swap_bytes_write(unknown3);
+	p->write(unknown4);
     }
 
-    void deserialize(Packet p)
+    void deserialize(Packet *p)
     { 
 
     }
@@ -135,7 +137,7 @@ void UDP::handle_recv(const boost::system::error_code& error, std::size_t bytes)
     //
    
     //for now just assume sessionrequset
-    UDP::handle_session_request(p);
+    UDP::handle_session_request(&p);
     start_recv();
 }
 
@@ -151,7 +153,7 @@ void UDP::handle_send(const boost::system::error_code& error, std::size_t bytes)
 }
 
 
-void UDP::handle_session_request(Packet in)
+void UDP::handle_session_request(Packet *in)
 {
     SessionRequest request;
     request.deserialize(in);
@@ -161,22 +163,18 @@ void UDP::handle_session_request(Packet in)
     //TODO  better way to determine size
     out.set_msg_size(35);
 
-    response.serialize(out);
-   
-   /**TODO**
-    crc_t crc;
-    crc = crc_init();
-    crc = crc_update_hex(
-    crc = crc_finalize(crc);
-    */
-
-   // out.write(crc);
+    response.serialize(&out);
     out.print();
 
+    crc_t crc, crc_init;
+    crc_init = 0x48e05191;
+    crc = crc_update(crc_init, out.get_msg(), out.get_msg_size() - 4);
+    printf("> Newly Calculated Packet CRC: 0x%08X\n",htonl(crc));
+    out.write(crc);
 
-    //out.appendCRC
-    //send(out);
+    out.print();
+
+    send(out);
     
 
 }
-

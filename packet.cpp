@@ -17,7 +17,7 @@ Packet::Packet()
     {
 	std::cout << "size: " << size << std::endl;
 	this->size = size;
-	buffer = new char[size];
+	buffer = new unsigned char[size];
     }
 
     void Packet::swap_bytes(unsigned short &bytes)

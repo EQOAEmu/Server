@@ -15,7 +15,8 @@ class Packet {
 public:
     Packet();
     
-    unsigned char* get_msg() { &buffer[0]; }
+//      unsigned char* get_msg() { &buffer[0]; }
+    unsigned char* get_msg() { return buffer; }
     int get_msg_size() { return size; }
 
     void set_msg_size(int bufsize);
@@ -37,6 +38,8 @@ public:
     void swap_bytes(unsigned int &bytes);
     void swap_bytes(unsigned long int &bytes);
 
+    int get_writeptr() { return writeptr; }
+
 
 /*
     template<class T>
@@ -44,7 +47,7 @@ public:
 */
 
 private:
-    char* buffer; 
+    unsigned char* buffer; 
     int size;
     int writeptr;
     int readptr;

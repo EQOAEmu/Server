@@ -33,8 +33,8 @@ public:
     void send(Packet p);
     void handle_send(const boost::system::error_code& error, size_t bytes);
 
-    void handle_session_request(Packet p);
-    
+    void handle_session_request(Packet *p);
+   
 private:
     boost::asio::io_service& io_service_;
     boost::asio::ip::udp::socket socket_;
