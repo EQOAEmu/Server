@@ -124,14 +124,27 @@ struct ServerResponse {
     uint8_t unknown1;
     uint16_t seqno;
     uint32_t unknown2;
+    uint16_t numservers;
     uint16_t servers;
-    uint8_t flag;
+    uint8_t dflag;
     uint32_t clwlength;
     std::wstring clw;
+    uint8_t rflag;
     uint16_t clwwscode;
     uint16_t clwport;
     uint32_t clwip;
+    uint8_t pad;
+    uint32_t dhlength;
     std::wstring dh;
+    uint16_t dhwscode;
+    uint16_t dhport;
+    uint32_t dhip;
+    uint32_t fhlength;
+    std::wstring fh;
+    uint16_t fhwscode;
+    uint16_t fhport;
+    uint32_t fhip;
+
 
 
     ServerResponse()
@@ -147,11 +160,25 @@ struct ServerResponse {
 	seqno(0x0200),
 	unknown1(0x20),
 	unknown2(0xfcff1501),
+	numservers(0xb307),
+	dflag(0x0e),
+	clwlength(0x10000000),
 	clw(L"Castle Lightwolf"),
+	rflag(0x00),
 	clwwscode(0x0a1f),
 	clwport(0x5727),
 	clwip(0x300a6cc7),
-	dh(L"Diren Hold")
+	pad(0x00),
+	dhlength(0x0a000000),
+	dh(L"Diren Hold"),
+	dhwscode(0x013e),
+	dhport(0x5627),
+	dhip(0x480a6cc7),
+	fhlength(0x000d0000),
+	fh(L"Ferran's Hope"),
+	fhwscode(0x0a1f),
+	fhport(0x5727),
+	fhip(0x300a6cc7)
 	{
 	}
 
@@ -166,11 +193,28 @@ struct ServerResponse {
 	p->write(unknown1);
 	p->swap_bytes_write(seqno);
 	p->swap_bytes_write(unknown2);
+	p->swap_bytes_write(numservers);
+	p->write(dflag);
+	p->swap_bytes_write(clwlength);
 	p->write_wstring(clw);
-//	p->write(clwwscode);
-///	p->swap_bytes_write(clwport);
-//	p->swap_bytes_write(clwip);
-//	p->write_wstring(dh);
+	p->write(rflag);
+	p->swap_bytes_write(clwwscode);
+	p->swap_bytes_write(clwport);
+	p->swap_bytes_write(clwip);
+	p->write(rflag);
+	p->swap_bytes_write(dhlength);
+	p->write_wstring(dh);
+	p->write(rflag);
+	p->swap_bytes_write(dhwscode);
+	p->swap_bytes_write(dhport);
+	p->swap_bytes_write(dhip);
+	p->write(rflag);
+	p->swap_bytes_write(fhlength);
+	p->write_wstring(fh);
+	p->write(rflag);
+	p->swap_bytes_write(fhwscode);
+	p->swap_bytes_write(fhport);
+	p->swap_bytes_write(fhip);
     }
 
     void deserialize(Packet *p)

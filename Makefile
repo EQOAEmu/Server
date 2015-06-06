@@ -8,7 +8,7 @@ LIBS=
 all : $(EXE)
 
 $(EXE) : $(OBJECTS)
-	$(CC) $^ $(LDFLAGS) $(LIBS) -o $@
+	$(CC) $^ $(LDFLAGS) $(LIBS) -o $@ -g -Wall
 
 clean :
 	$(RM) $(OBJECTS) $(EXE)

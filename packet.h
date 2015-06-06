@@ -21,7 +21,7 @@ public:
     const unsigned char* get_msg() { return &buffer.front(); }
     size_t get_msg_size() { return buffer.capacity(); }
 
-    void set_msg_size(size_t bufsize);
+    void set_msg_size(int bufsize);
     void print();
 
     template<class T>
@@ -56,7 +56,6 @@ private:
 template <class T>
 void Packet::write(T& data) 
     {
-	std::cout << writeptr << std::endl;
 	buffer.insert(buffer.begin() + writeptr, reinterpret_cast<unsigned char *>(&data),
 	reinterpret_cast<unsigned char *>(&data) + sizeof(T));
 	writeptr += sizeof(T);
@@ -64,7 +63,6 @@ void Packet::write(T& data)
 
 template <class T>
 void Packet::swap_bytes_write(T& data) {
-	std::cout << writeptr << std::endl;
 	swap_bytes(data);
 	buffer.insert(buffer.begin() + writeptr, reinterpret_cast<unsigned char *>(&data),
 	reinterpret_cast<unsigned char *>(&data) + sizeof(T));

@@ -14,9 +14,9 @@ Packet::Packet()
     }
     Packet::~Packet() {}
 
-    void Packet::set_msg_size(size_t size)
+    void Packet::set_msg_size(int size)
     {
-	buffer.reserve(size);
+	buffer.resize(size);
 	this->size = size;
     }
 
@@ -50,8 +50,7 @@ Packet::Packet()
     {
 	std::cout << writeptr << std::endl;
 	std::copy(ws.begin(), ws.end(), reinterpret_cast<uint16_t*>(&buffer[writeptr]));
-	writeptr += ws.length() * 2 + 1;
-	std::cout << writeptr << std::endl;
+	writeptr += ws.length() * 2;
     }
 
 
