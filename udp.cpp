@@ -144,7 +144,27 @@ struct ServerResponse {
     uint16_t fhwscode;
     uint16_t fhport;
     uint32_t fhip;
-
+    uint32_t hdstklength;
+    std::wstring hdstk;
+    uint16_t hdstkwscode;
+    uint16_t hdstkport;
+    uint32_t hdstkip;
+    uint32_t mflength;
+    std::wstring mf;
+    uint16_t mfwscode;
+    uint16_t mfport;
+    uint32_t mfip;
+    uint32_t ppolength;
+    std::wstring ppo;
+    uint16_t ppowscode;
+    uint16_t ppoport;
+    uint32_t ppoip;
+    uint32_t hglength;
+    std::wstring hg;
+    uint16_t hgwscode;
+    uint16_t hgport;
+    uint32_t hgip;
+    uint8_t hgflag;
 
 
     ServerResponse()
@@ -174,11 +194,32 @@ struct ServerResponse {
 	dhwscode(0x013e),
 	dhport(0x5627),
 	dhip(0x480a6cc7),
-	fhlength(0x000d0000),
+	fhlength(0x0d000000),
 	fh(L"Ferran's Hope"),
-	fhwscode(0x0a1f),
-	fhport(0x5727),
-	fhip(0x300a6cc7)
+	fhwscode(0x1c24),
+	fhport(0x5627),
+	fhip(0x740a6cc7),
+	hdstklength(0x08000000),
+	hdstk(L"Hodstock"),
+	hdstkwscode(0x91b9),
+	hdstkport(0x5627),
+	hdstkip(0x840a6cc7),
+	mflength(0x0b000000),
+	mf(L"Marr's Fist"),
+	mfwscode(0x92bd),
+	mfport(0x5727),
+	mfip(0x25c86cc7),
+	ppolength(0x11000000),
+	ppo(L"Proudpine Outpost"),
+	ppowscode(0xa9d7),
+	ppoport(0x5627),
+	ppoip(0x44c86cc7),
+	hglength(0x0d000000),
+	hg(L"Hagley (Test)"),
+	hgwscode(0x359b),
+	hgport(0x5627),
+	hgip(0xeb0a6cc7),
+	hgflag(0x01)
 	{
 	}
 
@@ -215,6 +256,36 @@ struct ServerResponse {
 	p->swap_bytes_write(fhwscode);
 	p->swap_bytes_write(fhport);
 	p->swap_bytes_write(fhip);
+	p->write(rflag);
+	p->swap_bytes_write(hdstklength);
+	p->write_wstring(hdstk);
+	p->write(rflag);
+	p->swap_bytes_write(hdstkwscode);
+	p->swap_bytes_write(hdstkport);
+	p->swap_bytes_write(hdstkip);
+	p->write(rflag);
+	p->swap_bytes_write(mflength);
+	p->write_wstring(mf);
+	p->write(rflag);
+	p->swap_bytes_write(mfwscode);
+	p->swap_bytes_write(mfport);
+	p->swap_bytes_write(mfip);
+	p->write(rflag);
+	p->swap_bytes_write(ppolength);
+	p->write_wstring(ppo);
+	p->write(rflag);
+	p->swap_bytes_write(ppowscode);
+	p->swap_bytes_write(ppoport);
+	p->swap_bytes_write(ppoip);
+	p->write(rflag);
+	p->swap_bytes_write(hglength);
+	p->write_wstring(hg);
+	p->write(hgflag);
+	p->swap_bytes_write(hgwscode);
+	p->swap_bytes_write(hgport);
+	p->swap_bytes_write(hgip);
+	p->write(pad);
+
     }
 
     void deserialize(Packet *p)
@@ -321,18 +392,16 @@ UDP::UDP(boost::asio::io_service& io_service)
 	Packet out;
 	
 	//TODO  better way to determine size
-	out.set_msg_size(200);
+	out.set_msg_size(298);
 
 	response.serialize(&out);
 	out.print();
-    /*
 	crc_t crc, crc_init;
-	crc_init = 0x48e05191;
+	crc_init = 0xb67d65cc;
 	crc = crc_update(crc_init, out.get_msg(), out.get_msg_size() - 4);
 
 	printf("> Newly Calculated Packet CRC: 0x%08X\n",htonl(crc));
 	out.write(crc);
-    */
 
       //  send(out);
 	
