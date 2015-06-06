@@ -7,26 +7,30 @@
 #define PACKET_H
 
 #include <iostream>
+#include <vector>
 #include <string.h>
+#include <stdint.h>
 
 #include <stdio.h>
 
 class Packet {
 public:
     Packet();
+   ~Packet();
     
-//      unsigned char* get_msg() { &buffer[0]; }
-    unsigned char* get_msg() { return buffer; }
-    int get_msg_size() { return size; }
+    const unsigned char* get_msg() { return &buffer.front(); }
+    size_t get_msg_size() { return buffer.capacity(); }
 
-    void set_msg_size(int bufsize);
+    void set_msg_size(size_t bufsize);
     void print();
 
     template<class T>
-    void write(T& data);
+    void write (T& data);
 
     template<class T>
     void swap_bytes_write(T& data);
+
+    void write_wstring(std::wstring ws);
 
     template<class T>
     T read();
@@ -41,13 +45,8 @@ public:
     int get_writeptr() { return writeptr; }
 
 
-/*
-    template<class T>
-    T read(int ptr, T);
-*/
-
 private:
-    unsigned char* buffer; 
+    std::vector<unsigned char> buffer;
     int size;
     int writeptr;
     int readptr;
@@ -55,50 +54,37 @@ private:
     
 
 template <class T>
-void Packet::write(T& data)
-{
-    memcpy(buffer+writeptr, &data, sizeof(T));
-    writeptr += sizeof(T);
-}
-
-
-template <class T>
-void Packet::swap_bytes_write(T& data)
-{
-    swap_bytes(data);
-    memcpy(buffer+writeptr, &data, sizeof(T));
-    writeptr += sizeof(T);
-}
+void Packet::write(T& data) 
+    {
+	std::cout << writeptr << std::endl;
+	buffer.insert(buffer.begin() + writeptr, reinterpret_cast<unsigned char *>(&data),
+	reinterpret_cast<unsigned char *>(&data) + sizeof(T));
+	writeptr += sizeof(T);
+    }
 
 template <class T>
-T Packet::read()
-{
-    T bytes;
-    memcpy(&bytes, buffer + readptr, sizeof(T));
-    readptr += sizeof(T);
-    return bytes;
-}
+void Packet::swap_bytes_write(T& data) {
+	std::cout << writeptr << std::endl;
+	swap_bytes(data);
+	buffer.insert(buffer.begin() + writeptr, reinterpret_cast<unsigned char *>(&data),
+	reinterpret_cast<unsigned char *>(&data) + sizeof(T));
+	writeptr += sizeof(T);
+    }
 
-template <class T>
-void Packet::seek()
-{
-    readptr += sizeof(T);
-}
-
-/*
 template <class T>
 T Packet::read()
-{
-    T bytes = read<T>(readptr, bytes);   
-    readptr += sizeof(T);
-    return bytes;
-}
+    {
+	T bytes;
+       // memcpy(&bytes, buffer + readptr, sizeof(T));
+	memcpy(&bytes, buffer.data() + readptr, sizeof(T));
+	readptr += sizeof(T);
+	return bytes;
+    }
 
 template <class T>
-T Packet::read(int readptr, T bytes)
-{
-    memcpy(&bytes, buffer+readptr, sizeof(T));
-    return bytes;
-}
-*/
+    void Packet::seek()
+    {
+	readptr += sizeof(T);
+    }
+
 #endif

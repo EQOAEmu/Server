@@ -19,6 +19,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
+
 /**
  * Static table used for the table_driven implementation.
  *****************************************************************************/

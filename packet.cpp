@@ -12,12 +12,12 @@ Packet::Packet()
     readptr(0)
     {
     }
+    Packet::~Packet() {}
 
-    void Packet::set_msg_size(int size)
+    void Packet::set_msg_size(size_t size)
     {
-	std::cout << "size: " << size << std::endl;
+	buffer.reserve(size);
 	this->size = size;
-	buffer = new unsigned char[size];
     }
 
     void Packet::swap_bytes(unsigned short &bytes)
@@ -46,8 +46,13 @@ Packet::Packet()
           (bytes << 56);
     }
 
-
-
+    void Packet::write_wstring(std::wstring ws)
+    {
+	std::cout << writeptr << std::endl;
+	std::copy(ws.begin(), ws.end(), reinterpret_cast<uint16_t*>(&buffer[writeptr]));
+	writeptr += ws.length() * 2 + 1;
+	std::cout << writeptr << std::endl;
+    }
 
 
     //ugly, but will work for now
@@ -55,12 +60,11 @@ Packet::Packet()
     {
 	int i, j;
 	std::cout << "BEGIN packet dump" << std::endl;
-
 	for (i = 0; i < size; i += 16) {	
 
 	    //print hex 
 	    for (j = 0; j < 16 && i + j < size; j++) {
-		printf("%02X ", (unsigned char)buffer[i + j]);
+		printf("%02X ", (unsigned char)buffer.data()[i + j]);
 	     }   
 	    printf(" ");
 
@@ -70,8 +74,8 @@ Packet::Packet()
 
 	    //print ascii
 	    for (j = 0; j < 16 && i + j < size; j++) {
-		if (IS_PRINTABLE(buffer[i + j]))
-                printf("%c", buffer[i + j]);
+		if (IS_PRINTABLE(buffer.data()[i + j]))
+                printf("%c", buffer.data()[i + j]);
 		else
 		    printf(".");
 	    }
@@ -79,7 +83,6 @@ Packet::Packet()
     
 	}
 	std::cout << "END packet dump" << std::endl;
-
     }
 
 

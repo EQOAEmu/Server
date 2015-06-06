@@ -20,7 +20,8 @@
 class UDP {
 public:
     explicit UDP(boost::asio::io_service& io_service);
-    
+    ~UDP();
+
     std::string get_ip() { return ip; }
     int get_port() { return port; }
 
@@ -34,6 +35,7 @@ public:
     void handle_send(const boost::system::error_code& error, size_t bytes);
 
     void handle_session_request(Packet *p);
+    void handle_server_request(Packet *p);
    
 private:
     boost::asio::io_service& io_service_;
