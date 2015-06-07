@@ -206,7 +206,7 @@ struct ServerResponse {
 	hdstkip(0x840a6cc7),
 	mflength(0x0b000000),
 	mf(L"Marr's Fist"),
-	mfwscode(0x92bd),
+	mfwscode(0x9ebd),
 	mfport(0x5727),
 	mfip(0x25c86cc7),
 	ppolength(0x11000000),
@@ -332,17 +332,35 @@ UDP::UDP(boost::asio::io_service& io_service)
     {
 	std::cout << "Packet received" << std::endl;
 	Packet p;
+	uint8_t opcode, op_option;
 	p.set_msg_size(bytes);
 	p.write(recv_buffer_);
 	p.print();
 	//determine packet type here
-	//
-	//
-	//
-       
-	//for now just assume 
-	//UDP::handle_session_request(&p);
-	UDP::handle_server_request(&p);
+	opcode = p.peek(OPCODE);
+	if (opcode==E_CODE)
+	{
+	    op_option = p.peek(OP_OPTION);
+	    switch(op_option)
+	    {
+		case SESSION_REQUEST:
+		    std::cout << "*** Session Request from Client ***" << std::endl;
+		    UDP::handle_session_request(&p);
+		    break;
+
+		case SERVER_COMPLEX_REQUEST:
+		    std::cout << "*** Server Complex List Request from Client ***" << std::endl;
+		    UDP::handle_server_request(&p);
+		    break;
+	    }
+	}
+	else if(opcode==CHARACTER_REQUEST)
+	{
+	    std::cout << "*** Character List Request from Client ***" << std::endl;
+	    //TODO
+	}
+
+
 	start_recv();
     }
 
@@ -403,7 +421,7 @@ UDP::UDP(boost::asio::io_service& io_service)
 	printf("> Newly Calculated Packet CRC: 0x%08X\n",htonl(crc));
 	out.write(crc);
 
-      //  send(out);
+        send(out);
 	
 
     }

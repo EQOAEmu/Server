@@ -48,7 +48,6 @@ Packet::Packet()
 
     void Packet::write_wstring(std::wstring ws)
     {
-	std::cout << writeptr << std::endl;
 	std::copy(ws.begin(), ws.end(), reinterpret_cast<uint16_t*>(&buffer[writeptr]));
 	writeptr += ws.length() * 2;
     }

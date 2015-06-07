@@ -18,7 +18,7 @@ public:
     Packet();
    ~Packet();
     
-    const unsigned char* get_msg() { return &buffer.front(); }
+    unsigned char* get_msg() { return &buffer.front(); }
     size_t get_msg_size() { return buffer.capacity(); }
 
     void set_msg_size(int bufsize);
@@ -34,6 +34,9 @@ public:
 
     template<class T>
     T read();
+
+    template<class T>
+    T peek(T data);
 
     template<class T>
     void seek();
@@ -76,6 +79,14 @@ T Packet::read()
        // memcpy(&bytes, buffer + readptr, sizeof(T));
 	memcpy(&bytes, buffer.data() + readptr, sizeof(T));
 	readptr += sizeof(T);
+	return bytes;
+    }
+
+template <class T>
+T Packet::peek(T pos)
+    {
+	T bytes;
+	memcpy(&bytes, buffer.data() + pos, sizeof(T));
 	return bytes;
     }
 

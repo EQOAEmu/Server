@@ -8,6 +8,7 @@
 #define UDP_H_
 
 #include "packet.h"
+#include "opcodes.h"
 #include "crc.h"
 
 #include <iostream>
