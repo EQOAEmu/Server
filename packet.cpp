@@ -14,9 +14,11 @@ Packet::Packet()
     }
     Packet::~Packet() {}
 
+    //TODO fix sizing
     void Packet::set_msg_size(int size)
     {
 	buffer.resize(size);
+	//buffer.reserve(size);
 	this->size = size;
     }
 

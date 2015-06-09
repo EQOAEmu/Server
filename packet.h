@@ -18,8 +18,8 @@ public:
     Packet();
    ~Packet();
     
-    unsigned char* get_msg() { return &buffer.front(); }
-    size_t get_msg_size() { return buffer.capacity(); }
+    const unsigned char* get_msg() { return buffer.data(); }
+    size_t get_msg_size() { return size; }
 
     void set_msg_size(int bufsize);
     void print();

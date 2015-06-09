@@ -386,7 +386,11 @@ UDP::UDP(boost::asio::io_service& io_service)
 	//TODO  better way to determine size
 	out.set_msg_size(35);
 
+	//TODO
+	//fix vector
+	//vector automatically doubles in capacity here
 	response.serialize(&out);
+	
 	out.print();
 	crc_t crc, crc_init;
 	crc_init = 0x48e05191;
@@ -421,6 +425,7 @@ UDP::UDP(boost::asio::io_service& io_service)
 	printf("> Newly Calculated Packet CRC: 0x%08X\n",htonl(crc));
 	out.write(crc);
 
+	out.print();
         send(out);
 	
 
