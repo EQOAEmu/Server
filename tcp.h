@@ -33,11 +33,6 @@ public:
        tcp_socket.cancel();
     }
 
-private:
-    std::vector<uint8_t> recv_buffer;
-    boost::shared_ptr<Service> _service;
-   
-protected:
     boost::asio::ip::tcp::socket tcp_socket;
 
     void Bind(const std::string &ip, uint16_t port);
@@ -47,6 +42,10 @@ protected:
 
     void AsyncWrite(Packet p);
     void WriteHandler(const boost::system::error_code &error, size_t bytes);
+
+private:
+    std::vector<uint8_t> recv_buffer;
+    boost::shared_ptr<Service> _service;
 
 };
 
@@ -58,7 +57,8 @@ public:
 
     boost::shared_ptr<Service> GetService();
     
-    void Bind();
+    void Start();
+    void Bind(const std::string &ip, uint16_t port);
     void Listen(const std::string &ip, const uint16_t &port);
     void Accept(boost::shared_ptr<TCPConnection> connection);
     void AcceptHandler(const boost::system::error_code &ec, boost::shared_ptr<TCPConnection>
@@ -66,7 +66,7 @@ public:
 
 private:
     boost::shared_ptr<Service> _service;
-//    boost::asio::ip::tcp::acceptor _acceptor;
+    boost::asio::ip::tcp::acceptor _acceptor;
     
     
 };

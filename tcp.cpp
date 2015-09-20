@@ -12,6 +12,9 @@ TCPConnection::TCPConnection(boost::shared_ptr<Service> service)
 {
 }
 
+TCPConnection::~TCPConnection()
+{
+}
 
 boost::asio::ip::tcp::socket& TCPConnection::GetSocket()
 {
@@ -52,8 +55,7 @@ void TCPConnection::WriteHandler(const boost::system::error_code &error, size_t 
 
 /*-----------------------------------------------------------*/
 TCPServer::TCPServer(boost::shared_ptr<Service> service)
-:
-_service(service)
+: _service(service), _acceptor(service->GetIoService())
 {
 }
 
@@ -66,17 +68,23 @@ boost::shared_ptr<Service> TCPServer::GetService()
     return _service;
 }
 
-void TCPServer::Bind()
+void TCPServer::Start()
+{
+    std::cout << "Starting TCP Server" << std::endl;
+    //Accept();
+}
+
+void TCPServer::Bind(const std::string &ip, uint16_t port)
 {
     boost::asio::ip::address address = boost::asio::ip::address::from_string(ip);
     boost::asio::ip::tcp::endpoint endpoint(address, port);
     _acceptor.bind(endpoint);
 }
 
-void TCPServer::Accept(boost::shared_ptr<TCPConnection> connection) 
+void TCPServer::Accept(boost::shared_ptr<TCPConnection> tcpConnection) 
 {
-    _acceptor.async_accept(accept->Socket(), boost::bind(&TCPServer::AcceptHander, this,
-    boost::asio::placeholders::error, connection));
+    _acceptor.async_accept(tcpConnection->GetSocket(), boost::bind(&TCPServer::AcceptHandler, this,
+    boost::asio::placeholders::error, tcpConnection));
 
 }
 
@@ -84,7 +92,8 @@ void TCPServer::AcceptHandler(const boost::system::error_code &ec,
 boost::shared_ptr<TCPConnection> accepted) {
     if (!ec)
     {
-//	TCPServer::Accept();
+	accepted->AsyncRead();
+	//Accept();
     }
     else 
     {
