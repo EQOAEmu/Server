@@ -296,39 +296,44 @@ struct ServerResponse {
 
 
 
-UDP::UDP(boost::asio::io_service& io_service)
-: io_service_(io_service), socket_(io_service)
+UDPServer::UDPServer(boost::shared_ptr<Service> service)
+: _service(service), socket_(service->GetIoService())
     {
-	set_port(7000);
+    }
+
+    UDPServer::~UDPServer() {}
+
+    boost::shared_ptr<Service> UDPServer::GetService()
+    {
+	return _service;
+    }
+
+    void UDPServer::Start(const uint16_t port)
+    {
+	std::cout << "Starting UDP Server" << std::endl;
 	boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::udp::v4(), port);
        // boost::asio::ip::udp::endpoint endpoint(boost::asio::ip::address::from_string(ip), port);
 	socket_.open(boost::asio::ip::udp::v4());
 	socket_.bind(endpoint);
-	UDP::start_recv();
+	UDPServer::StartRecv();
     }
 
-    UDP::~UDP() {}
-
-    void UDP::set_ip(char const* n) 
+    void UDPServer::SetIp(char const* n) 
     {
 	// boost::asio::ip::address::from_string(n);
     }
 
-    void UDP::set_port(int n)
-    {
-	this->port = n;
-    }
 
-    void UDP::start_recv()
+    void UDPServer::StartRecv()
     {
 	
 	socket_.async_receive_from(boost::asio::buffer(recv_buffer_), remote_endpoint_,
-	boost::bind(&UDP::handle_recv, this, boost::asio::placeholders::error,
+	boost::bind(&UDPServer::ReadHandler, this, boost::asio::placeholders::error,
 	boost::asio::placeholders::bytes_transferred));
 
     }
 
-    void UDP::handle_recv(const boost::system::error_code& error, std::size_t bytes)
+    void UDPServer::ReadHandler(const boost::system::error_code& error, std::size_t bytes)
     {
 	std::cout << "Packet received" << std::endl;
 	Packet p;
@@ -345,12 +350,12 @@ UDP::UDP(boost::asio::io_service& io_service)
 	    {
 		case SESSION_REQUEST:
 		    std::cout << "*** Session Request from Client ***" << std::endl;
-		    UDP::handle_session_request(&p);
+		    UDPServer::HandleSessionRequest(&p);
 		    break;
 
 		case SERVER_COMPLEX_REQUEST:
 		    std::cout << "*** Server Complex List Request from Client ***" << std::endl;
-		    UDP::handle_server_request(&p);
+		    UDPServer::HandleSessionRequest(&p);
 		    break;
 	    }
 	}
@@ -361,22 +366,22 @@ UDP::UDP(boost::asio::io_service& io_service)
 	}
 
 
-	start_recv();
+	StartRecv();
     }
 
-    void UDP::send(Packet p)
+    void UDPServer::AsyncSendTo(Packet p)
     {
 	socket_.async_send_to(boost::asio::buffer(p.get_msg(), p.get_msg_size()),
-	remote_endpoint_, boost::bind(&UDP::handle_send, this, boost::asio::placeholders::error,
+	remote_endpoint_, boost::bind(&UDPServer::SendToHandler, this, boost::asio::placeholders::error,
 	boost::asio::placeholders::bytes_transferred));
     }
 
-    void UDP::handle_send(const boost::system::error_code& error, std::size_t bytes)
+    void UDPServer::SendToHandler(const boost::system::error_code& error, std::size_t bytes)
     {
     }
 
 
-    void UDP::handle_session_request(Packet *in)
+    void UDPServer::HandleSessionRequest(Packet *in)
     {
 	SessionRequest request;
 	request.deserialize(in);
@@ -400,13 +405,13 @@ UDP::UDP(boost::asio::io_service& io_service)
 
 	out.print();
 
-	send(out);
+	AsyncSendTo(out);
 
     }
 
 
 
-    void UDP::handle_server_request(Packet *in)
+    void UDPServer::HandleServerRequest(Packet *in)
     {
 	ServerRequest request;
 	request.deserialize(in);
@@ -426,7 +431,7 @@ UDP::UDP(boost::asio::io_service& io_service)
 	out.write(crc);
 
 	out.print();
-        send(out);
+        AsyncSendTo(out);
 	
 
     }

@@ -7,8 +7,8 @@
 #ifndef TCP_H_
 #define TCP_H_
 
-#include "packet.h"
 #include "service.h"
+#include "packet.h"
 
 class TCPConnection;
 class TCPServer;
@@ -35,13 +35,15 @@ public:
 
     boost::asio::ip::tcp::socket tcp_socket;
 
-    void Bind(const std::string &ip, uint16_t port);
+    void Listen(uint16_t port);
     
     void AsyncRead();
     void ReadHandler(const boost::system::error_code& error, std::size_t bytes);
 
-    void AsyncWrite(Packet p);
+    void AsyncWrite(Packet *p);
     void WriteHandler(const boost::system::error_code &error, size_t bytes);
+
+    void HandleConnectionRequest();
 
 private:
     std::vector<uint8_t> recv_buffer;
@@ -57,10 +59,10 @@ public:
 
     boost::shared_ptr<Service> GetService();
     
-    void Start();
-    void Bind(const std::string &ip, uint16_t port);
+    void Start(const uint16_t &port);
+    void Listen(const uint16_t &port);
     void Listen(const std::string &ip, const uint16_t &port);
-    void Accept(boost::shared_ptr<TCPConnection> connection);
+    void Accept();
     void AcceptHandler(const boost::system::error_code &ec, boost::shared_ptr<TCPConnection>
     tcpConnection);
 

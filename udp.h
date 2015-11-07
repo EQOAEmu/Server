@@ -4,10 +4,11 @@
 //
 ///////////////////////////////////////////////////////////////
 
-#ifndef UDP_H_
-#define UDP_H_
+#ifndef UDPServer_H_
+#define UDPServer_H_
 
 #include "packet.h"
+#include "service.h"
 #include "opcodes.h"
 #include "crc.h"
 
@@ -18,35 +19,34 @@
 
 
 
-class UDP {
+class UDPServer {
 public:
-    explicit UDP(boost::asio::io_service& io_service);
-    ~UDP();
+    explicit UDPServer(boost::shared_ptr<Service> service);
+    ~UDPServer();
+    
+    boost::shared_ptr<Service> GetService();
 
-    std::string get_ip() { return ip; }
-    int get_port() { return port; }
+    std::string GetIp() { return ip; }
+    int GetPort() { return port; }
 
-    void set_ip(char const* n);
-    void set_port(int n);
+    void SetIp(char const* n);
 
-    void start_recv();
-    void handle_recv(const boost::system::error_code& error, std::size_t bytes);
+    void Start(const uint16_t port);
+    void StartRecv();
+    void ReadHandler(const boost::system::error_code& error, std::size_t bytes);
 
-    void send(Packet p);
-    void handle_send(const boost::system::error_code& error, size_t bytes);
+    void AsyncSendTo(Packet p);
+    void SendToHandler(const boost::system::error_code& error, size_t bytes);
 
-    void handle_session_request(Packet *p);
-    void handle_server_request(Packet *p);
+    void HandleSessionRequest(Packet *p);
+    void HandleServerRequest(Packet *p);
    
 private:
-    boost::asio::io_service& io_service_;
+    boost::shared_ptr<Service> _service;
     boost::asio::ip::udp::socket socket_;
     boost::asio::ip::udp::endpoint remote_endpoint_;
     std::string ip;
     int port; 
-    //  enum { max_length = 512 };
-    //char data_[max_length];
-    //boost::array<uint8_t, 512> recv_buffer_;
     char recv_buffer_[512];
 };
     
