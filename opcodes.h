@@ -1,3 +1,8 @@
+/**
+ * These are the bytes we have identified from the packet analysis work
+ *
+ */
+
 #ifndef OPCODES_H
 #define OPCODES_H_
 

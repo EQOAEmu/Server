@@ -1,4 +1,3 @@
-
 ///////////////////////////////////////////////////////////////
 //service.cpp
 //
@@ -16,11 +15,11 @@ Service::~Service()
 
 boost::asio::io_service& Service::GetIoService()
 {
-    return _ioservice;
+  return _ioservice;
 }
 
 void Service::Run()
 {
-    _ioservice.run();
+  _ioservice.run();
 }
 

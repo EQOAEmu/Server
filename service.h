@@ -1,8 +1,8 @@
-///////////////////////////////////////////////////////////////
-//service.h 
-//
-//
-///////////////////////////////////////////////////////////////
+/**
+ * Service Class
+ *
+ * A class used for managing the boost::asio io_service
+ */
 
 #ifndef SERVICE_H
 #define SERVICE_H
@@ -17,14 +17,24 @@
 class Service : public boost::enable_shared_from_this<Service>
 {
 public:
-    Service();
-    virtual ~Service();
+  Service();
+  virtual ~Service();
 
-    boost::asio::io_service& GetIoService();
-    void Run();
+  /**
+   * Returns the io_service
+   *
+   * @return _ioservice The boost::asio io_service
+   */
+  boost::asio::io_service& GetIoService();
+
+  /**
+   * Begins the io_service event processing loop
+   *
+   */
+  void Run();
 
 private:
-    boost::asio::io_service _ioservice;
+  boost::asio::io_service _ioservice;
 };
 
 #endif
