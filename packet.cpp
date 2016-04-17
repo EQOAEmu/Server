@@ -1,3 +1,8 @@
+/**
+ * Packet Class
+ *
+ *
+ */
 #include "packet.h"
 
 #define IS_PRINTABLE(c) ((c) >= 32 && (c) <= 126)
